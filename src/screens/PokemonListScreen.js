@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -21,7 +22,14 @@ export default function PokemonListScreen({
   onClearSearch,
   onRetry,
   onSelect,
+  loadingMore,
+  loadMoreError,
+  onLoadMore,
+  onRetryLoadMore,
 }) {
+  // useRef evita llamar onEndReached varias veces durante el mismo desplazamiento.
+  const endReachedDuringScrollRef = useRef(false);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>PokéDex Explorer</Text>
@@ -71,7 +79,7 @@ export default function PokemonListScreen({
           <PokemonCard pokemon={pokemon[0]} onPress={() => onSelect(pokemon[0])} />
         </View>
       ) : (
-        // FlatList, visto en clase.
+        // FlatList usa onEndReached para pedir 20 Pokemon mas al llegar al final.
         <FlatList
           data={pokemon}
           keyExtractor={(item) => item.url}
@@ -81,6 +89,28 @@ export default function PokemonListScreen({
           renderItem={({ item }) => (
             <PokemonCard pokemon={item} onPress={() => onSelect(item)} />
           )}
+          onScrollBeginDrag={() => {
+            endReachedDuringScrollRef.current = false;
+          }}
+          onEndReached={() => {
+            if (endReachedDuringScrollRef.current || loadMoreError) return;
+            endReachedDuringScrollRef.current = true;
+            onLoadMore();
+          }}
+          onEndReachedThreshold={0.2}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={styles.footer}>
+                <ActivityIndicator size="small" />
+                <Text style={styles.feedbackText}>Cargando más Pokémon...</Text>
+              </View>
+            ) : loadMoreError ? (
+              <View style={styles.footer}>
+                <Text style={styles.feedbackText}>No se pudieron cargar más Pokémon.</Text>
+                <Button title="Reintentar" onPress={onRetryLoadMore} />
+              </View>
+            ) : null
+          }
         />
       )}
     </View>
@@ -139,5 +169,10 @@ const styles = StyleSheet.create({
   },
   row: {
     gap: 12,
+  },
+  footer: {
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 16,
   },
 });

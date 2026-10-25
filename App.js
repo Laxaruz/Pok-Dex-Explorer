@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import PokemonListScreen from './src/screens/PokemonListScreen';
 import PokemonDetailScreen from './src/screens/PokemonDetailScreen';
 import { getPokemonDetails, getPokemonList } from './src/services/pokemonApi';
+import { appendUniquePokemon } from './src/utils/pagination';
+
+const PAGE_SIZE = 20;
 
 // SafeAreaView, useState y useEffect, vistos en clase.
 export default function App() {
@@ -18,18 +21,30 @@ export default function App() {
   const [searchResult, setSearchResult] = useState(null);
   const [searchStatus, setSearchStatus] = useState('idle');
   const [searchRetryCount, setSearchRetryCount] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState(false);
+
+  // useRef conserva el siguiente offset y evita solicitudes simultaneas de paginas.
+  const nextOffsetRef = useRef(null);
+  const initialLoadingRef = useRef(true);
+  const loadingMoreRef = useRef(false);
 
   useEffect(() => {
     let active = true;
+    initialLoadingRef.current = true;
+    nextOffsetRef.current = null;
+    setLoadMoreError(false);
 
     async function loadPokemon() {
       setLoading(true);
       setError(false);
 
       try {
-        const data = await getPokemonList();
+        const data = await getPokemonList(PAGE_SIZE, 0);
         if (active) {
-          setPokemon(Array.isArray(data.results) ? data.results : []);
+          const firstPage = Array.isArray(data.results) ? data.results : [];
+          setPokemon(firstPage);
+          nextOffsetRef.current = data.next && firstPage.length > 0 ? PAGE_SIZE : null;
         }
       } catch {
         if (active) {
@@ -37,6 +52,7 @@ export default function App() {
         }
       } finally {
         if (active) {
+          initialLoadingRef.current = false;
           setLoading(false);
         }
       }
@@ -111,6 +127,31 @@ export default function App() {
   const isSearching = searchQuery !== '';
   const visiblePokemon = isSearching ? (searchResult ? [searchResult] : []) : pokemon;
 
+  async function handleLoadMore() {
+    const offset = nextOffsetRef.current;
+    if (isSearching || error || initialLoadingRef.current || loadingMoreRef.current || offset === null) {
+      return;
+    }
+
+    loadingMoreRef.current = true;
+    setLoadingMore(true);
+    setLoadMoreError(false);
+
+    try {
+      // El offset avanza de 20 en 20 solo despues de recibir una pagina valida.
+      const data = await getPokemonList(PAGE_SIZE, offset);
+      const nextPage = Array.isArray(data.results) ? data.results : [];
+      nextOffsetRef.current = data.next && nextPage.length > 0 ? offset + PAGE_SIZE : null;
+      setPokemon((current) => appendUniquePokemon(current, nextPage));
+    } catch {
+      // Si falla la peticion, se conserva el offset para reintentar la misma pagina.
+      setLoadMoreError(true);
+    } finally {
+      loadingMoreRef.current = false;
+      setLoadingMore(false);
+    }
+  }
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -132,6 +173,10 @@ export default function App() {
             onClearSearch={handleClearSearch}
             onRetry={handleRetry}
             onSelect={setSelectedPokemon}
+            loadingMore={loadingMore}
+            loadMoreError={loadMoreError}
+            onLoadMore={handleLoadMore}
+            onRetryLoadMore={handleLoadMore}
           />
         )}
         <StatusBar style="auto" />
