@@ -22,13 +22,12 @@ export default function PokemonListScreen({
   onRetry,
   onSelect,
 }) {
-  // View organiza la pantalla y Text muestra los mensajes de cada estado.
   return (
     <View style={styles.container}>
       <Text style={styles.title}>PokéDex Explorer</Text>
 
       <View style={styles.searchRow}>
-        {/* TextInput recibe la consulta sin correccion automatica; Button inicia la busqueda. */}
+        {/* TextInput y Button, vistos en clase. */}
         <TextInput
           style={styles.searchInput}
           placeholder="Busca por nombre o número..."
@@ -72,7 +71,7 @@ export default function PokemonListScreen({
           <PokemonCard pokemon={pokemon[0]} onPress={() => onSelect(pokemon[0])} />
         </View>
       ) : (
-        // FlatList muestra solo las tarjetas necesarias en pantalla.
+        // FlatList, visto en clase.
         <FlatList
           data={pokemon}
           keyExtractor={(item) => item.url}

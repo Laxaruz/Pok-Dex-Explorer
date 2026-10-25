@@ -1,6 +1,6 @@
 const API_URL = 'https://pokeapi.co/api/v2/pokemon';
 
-// Se usa fetch con async/await y se valida response.ok antes de leer JSON. visto en clase
+// fetch, async/await y response.ok, vistos en clase.
 export async function getPokemonList(limit = 20, offset = 0) {
   const response = await fetch(`${API_URL}?limit=${limit}&offset=${offset}`);
 

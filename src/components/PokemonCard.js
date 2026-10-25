@@ -9,7 +9,7 @@ export default function PokemonCard({ pokemon, onPress }) {
   const id = pokemon.url.split('/').filter(Boolean).pop();
   const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 
-  // Image necesita ancho y alto definidos para mostrar la imagen remota.
+  // Pressable e Image, vistos en clase.
   return (
     <Pressable style={styles.card} onPress={onPress}>
       <Image source={{ uri: imageUrl }} style={styles.image} />
