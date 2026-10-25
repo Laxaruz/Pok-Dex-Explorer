@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import PokemonCard from '../components/PokemonCard';
 
-export default function PokemonListScreen({ pokemon, loading, error, onRetry }) {
+export default function PokemonListScreen({ pokemon, loading, error, onRetry, onSelect }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>PokéDex Explorer</Text>
@@ -35,7 +35,9 @@ export default function PokemonListScreen({ pokemon, loading, error, onRetry }) 
           numColumns={2}
           columnWrapperStyle={styles.row}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => <PokemonCard pokemon={item} />}
+          renderItem={({ item }) => (
+            <PokemonCard pokemon={item} onPress={() => onSelect(item)} />
+          )}
         />
       )}
     </View>

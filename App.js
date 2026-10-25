@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import PokemonListScreen from './src/screens/PokemonListScreen';
+import PokemonDetailScreen from './src/screens/PokemonDetailScreen';
 import { getPokemonList } from './src/services/pokemonApi';
 
 // SafeAreaProvider permite usar los componentes de areas seguras en toda la app.
@@ -13,6 +14,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [selectedPokemon, setSelectedPokemon] = useState(null);
 
   // useEffect consulta los primeros 20 Pokemon al abrir la app o al reintentar.
   useEffect(() => {
@@ -47,12 +49,20 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
-        <PokemonListScreen
-          pokemon={pokemon}
-          loading={loading}
-          error={error}
-          onRetry={() => setRetryCount((count) => count + 1)}
-        />
+        {selectedPokemon ? (
+          <PokemonDetailScreen
+            pokemon={selectedPokemon}
+            onBack={() => setSelectedPokemon(null)}
+          />
+        ) : (
+          <PokemonListScreen
+            pokemon={pokemon}
+            loading={loading}
+            error={error}
+            onRetry={() => setRetryCount((count) => count + 1)}
+            onSelect={setSelectedPokemon}
+          />
+        )}
         <StatusBar style="auto" />
       </SafeAreaView>
     </SafeAreaProvider>
