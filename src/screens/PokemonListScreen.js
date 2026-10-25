@@ -30,6 +30,7 @@ export default function PokemonListScreen({
   // useRef evita llamar onEndReached varias veces durante el mismo desplazamiento.
   const endReachedDuringScrollRef = useRef(false);
 
+  // View organiza la pantalla y Text muestra titulos y mensajes.
   return (
     <View style={styles.container}>
       <Text style={styles.title}>PokéDex Explorer</Text>
@@ -87,7 +88,7 @@ export default function PokemonListScreen({
           columnWrapperStyle={styles.row}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
-            <PokemonCard pokemon={item} onPress={() => onSelect(item)} />
+            <PokemonCard pokemon={item} onPress={() => onSelect(item)} fillRow />
           )}
           onScrollBeginDrag={() => {
             endReachedDuringScrollRef.current = false;
@@ -117,6 +118,7 @@ export default function PokemonListScreen({
   );
 }
 
+// StyleSheet agrupa los estilos de la interfaz.
 const styles = StyleSheet.create({
   container: {
     flex: 1,

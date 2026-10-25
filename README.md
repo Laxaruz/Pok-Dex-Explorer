@@ -71,7 +71,7 @@ PokéAPI devuelve 404 con texto plano cuando no existe un nombre. Por eso el ser
 
 ## Evidencias
 
-Las [capturas tomadas en Expo Go](docs/evidencias/README.md) documentan la lista inicial, la búsqueda de Raichu y la ficha de Charmeleon.
+Las [capturas tomadas en Expo Go](docs/evidencias/README.md) documentan la lista inicial, la búsqueda de Raichu por número y la ficha de Charmeleon.
 
 ## Reparto del trabajo
 
