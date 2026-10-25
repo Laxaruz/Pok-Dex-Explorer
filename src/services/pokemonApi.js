@@ -17,7 +17,10 @@ export async function getPokemonDetails(identifier) {
   const response = await fetch(`${API_URL}/${pokemonIdentifier}`);
 
   if (!response.ok) {
-    throw new Error('No se pudo encontrar ese Pokémon.');
+    // El estado HTTP permite distinguir una busqueda sin resultados de otros errores.
+    const error = new Error('No se pudo encontrar ese Pokémon.');
+    error.status = response.status;
+    throw error;
   }
 
   const data = await response.json();
